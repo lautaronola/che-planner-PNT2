@@ -1,0 +1,12 @@
+{
+  "name": "che-planner-pnt2",
+  "version": "1.0.0",
+  "description": "Proyecto Final PNT2",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Grupo 2",
+  "license": "ISC"
+}
