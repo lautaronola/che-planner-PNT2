@@ -6,7 +6,16 @@ const METHODS = {
   DELETE: "DELETE",
 };
 const LOGIN_URL = "/users/login";
+const REGISTER_URL = "/users/register";
 
 const LOGIN_ERROR = "Error al iniciar sesión";
+const REGISTER_ERROR = "Error al registrar usuario";
 
-export { AUTH_KEY, METHODS, LOGIN_URL, LOGIN_ERROR };
+export {
+  AUTH_KEY,
+  METHODS,
+  LOGIN_URL,
+  REGISTER_URL,
+  LOGIN_ERROR,
+  REGISTER_ERROR,
+};
