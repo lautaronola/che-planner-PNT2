@@ -67,7 +67,9 @@ function LoginScreen() {
         </Pressable>
 
         <Pressable onPress={() => router.push("/register")}>
-          <Text style={styles.link}>¿No tenés cuenta? Registrate</Text>
+          <Text style={styles.link}>
+            ¿No tenés cuenta en Che Planner? Registrate
+          </Text>
         </Pressable>
       </KeyboardAvoidingView>
     </SafeAreaView>
