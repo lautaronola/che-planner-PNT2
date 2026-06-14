@@ -5,8 +5,8 @@ const METHODS = {
   PUT: "PUT",
   DELETE: "DELETE",
 };
-const LOGIN_URL = "/users/login";
-const REGISTER_URL = "/users/register";
+const LOGIN_URL = "/api/users/login";
+const REGISTER_URL = "/api/users/register";
 
 const LOGIN_ERROR = "Error al iniciar sesión";
 const REGISTER_ERROR = "Error al registrar usuario";
