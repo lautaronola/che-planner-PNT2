@@ -1,5 +1,4 @@
 import {
-  AUTH_KEY,
   METHODS,
   LOGIN_URL,
   REGISTER_URL,
