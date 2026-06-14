@@ -2,7 +2,7 @@
   "name": "che-planner-pnt2",
   "version": "1.0.0",
   "description": "Proyecto Final PNT2",
-  "main": "index.js",
+  "main": "expo-router/entry",
   "type": "module",
   "scripts": {
     "start": "expo start",
