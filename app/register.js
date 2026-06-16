@@ -7,11 +7,13 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import authService from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
+import AuthCard from "../components/Auth/AuthCard";
 
 function RegisterScreen() {
   const { setAuth } = useAuth();
@@ -37,55 +39,66 @@ function RegisterScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Text style={styles.title}>Crear cuenta</Text>
-        <Text style={styles.subtitle}>Completá tus datos para registrarte</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Nombre"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        <Pressable
-          style={styles.button}
-          onPress={handleRegister}
-          disabled={loading}
+        <AuthCard
+          title={"Creá tu cuenta\nChe Planner"}
+          subtitle="Completá tus datos para registrarte"
+          icon={
+            <Image
+              source={require("../assets/che-planer-logo.png")}
+              style={{ width: 48, height: 48 }}
+              resizeMode="contain"
+            />
+          }
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Cargando..." : "Registrarse"}
-          </Text>
-        </Pressable>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
 
-        <Pressable onPress={() => router.back()}>
-          <Text style={styles.link}>Ya tengo cuenta</Text>
-        </Pressable>
+          <Pressable
+            style={styles.button}
+            onPress={handleRegister}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Cargando..." : "Registrarse"}
+            </Text>
+          </Pressable>
+
+          <Pressable onPress={() => router.back()}>
+            <Text style={styles.link}>Ya tengo cuenta</Text>
+          </Pressable>
+        </AuthCard>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9f9ff", padding: 20 },
-  title: { fontSize: 32, fontWeight: "700", color: "#181c23", marginBottom: 8 },
-  subtitle: { fontSize: 14, color: "#6f7976", marginBottom: 32 },
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9ff",
+  },
   input: {
     backgroundColor: "#ffffff",
     borderWidth: 1,

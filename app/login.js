@@ -7,11 +7,13 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import authService from "../services/authService";
 import { useAuth } from "../hooks/useAuth";
+import AuthCard from "../components/Auth/AuthCard";
 
 function LoginScreen() {
   const { setAuth } = useAuth();
@@ -35,55 +37,60 @@ function LoginScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
+        style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Text style={styles.title}>Bienvenido</Text>
-        <Text style={styles.subtitle}>Iniciá sesión para continuar</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-
-        <Pressable
-          style={styles.button}
-          onPress={handleLogin}
-          disabled={loading}
+        <AuthCard
+          title={"Bienvenido a\nChe Planner"}
+          subtitle="Iniciá sesión para continuar"
+          icon={
+            <Image
+              source={require("../assets/che-planer-logo.png")}
+              style={{ width: 48, height: 48 }}
+              resizeMode="contain"
+            />
+          }
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Cargando..." : "Ingresar"}
-          </Text>
-        </Pressable>
-
-        <Pressable onPress={() => router.push("/register")}>
-          <Text style={styles.link}>
-            ¿No tenés cuenta en Che Planner? Registrate
-          </Text>
-        </Pressable>
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <Pressable
+            style={styles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            <Text style={styles.buttonText}>
+              {loading ? "Cargando..." : "Ingresar"}
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => router.push("/register")}>
+            <Text style={styles.link}>
+              ¿No tenés cuenta en Che Planner? Registrate
+            </Text>
+          </Pressable>
+        </AuthCard>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f9f9ff", padding: 20 },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#181c23",
-    marginBottom: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#f9f9ff",
   },
-  subtitle: { fontSize: 14, color: "#6f7976", marginBottom: 32 },
   input: {
     backgroundColor: "#ffffff",
     borderWidth: 1,
