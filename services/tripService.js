@@ -1,4 +1,10 @@
-import { METHODS, ADD_MEMBER_URL, ADD_MEMBER_ERROR } from "../constants/index";
+import {
+  METHODS,
+  ADD_MEMBER_URL,
+  ADD_MEMBER_ERROR,
+  CREATE_TRIP_URL,
+  CREATE_TRIP_ERROR,
+} from "../constants/index";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -23,4 +29,27 @@ const addMember = async (tripId, email, token) => {
   return data;
 };
 
-export default { addMember };
+const createViaje = async (nombre, destino, token) => {
+  try {
+    const body = { name: nombre, destination: destino };
+    const response = await fetch(`${BASE_URL}${CREATE_TRIP_URL}`, {
+      method: METHODS.POST,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || CREATE_TRIP_ERROR);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error creating trip:", error);
+    throw error;
+  }
+};
+
+export default { addMember, createViaje };
