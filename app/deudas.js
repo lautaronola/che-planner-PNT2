@@ -15,8 +15,6 @@ import tripService from "../services/tripService";
 const inicial = (nombre) => (nombre || "?").charAt(0).toUpperCase();
 const formatearMonto = (monto) => `$${Number(monto || 0).toLocaleString("es-AR")}`;
 
-// Resuelve el nombre de un integrante a partir de lo que devuelva la API.
-// Si es un objeto usa .name; si es un id, lo busca en members del viaje.
 const esObjectId = (v) => typeof v === "string" && /^[a-f\d]{24}$/i.test(v);
 
 const resolverNombre = (valor, members = []) => {
@@ -26,12 +24,9 @@ const resolverNombre = (valor, members = []) => {
     (m) => m._id === valor || m.id === valor || m.email === valor
   );
   if (encontrado) return encontrado.name || encontrado.email || "Integrante";
-  // Si es un id que no pudimos cruzar con members, evitamos mostrarlo crudo.
   return esObjectId(valor) ? "Integrante" : valor;
 };
 
-// Adapta la respuesta de calculateDebts a las filas que pinta la lista.
-// "debts" puede venir como array directo o dentro de una propiedad.
 const normalizarDeudas = (debts, members = []) => {
   const lista = Array.isArray(debts)
     ? debts
@@ -56,6 +51,7 @@ function DeudasScreen() {
   const [error, setError] = useState("");
   const [deudas, setDeudas] = useState([]);
   const [total, setTotal] = useState(0);
+  const [viaje, setViaje] = useState(null);
 
   useEffect(() => {
     let activo = true;
@@ -69,6 +65,7 @@ function DeudasScreen() {
         const summary = await tripService.getTripSummary(tripId, auth?.token);
         if (!activo) return;
         const members = summary?.trip?.members || [];
+        setViaje(summary?.trip || null);
         setDeudas(normalizarDeudas(summary?.debts, members));
         setTotal(summary?.totalDebtPending ?? summary?.totalDebt ?? 0);
       } catch (e) {
@@ -113,6 +110,9 @@ function DeudasScreen() {
   const Header = (
     <View>
       <View style={styles.hero}>
+        {viaje?.name ? (
+          <Text style={styles.heroEyebrow}>{viaje.name}</Text>
+        ) : null}
         <Text style={styles.heroTitle}>Deudas del Viaje</Text>
         <Text style={styles.heroSubtitle}>
           Quién le debe a quién, todo en un solo lugar.
@@ -127,6 +127,29 @@ function DeudasScreen() {
           {deudas.length === 1 ? "deuda pendiente" : "deudas pendientes"}
         </Text>
       </View>
+
+      {viaje ? (
+        <View style={styles.fichaRow}>
+          <View style={styles.fichaItem}>
+            <Text style={styles.fichaLabel}>Destino</Text>
+            <Text style={styles.fichaValor} numberOfLines={1}>
+              {viaje.destination || "Sin destino"}
+            </Text>
+          </View>
+          <View style={styles.fichaItem}>
+            <Text style={styles.fichaLabel}>Estado</Text>
+            <Text
+              style={[styles.fichaValor, viaje.status && styles.fichaActivo]}
+            >
+              {viaje.status ? "Activo" : "Cerrado"}
+            </Text>
+          </View>
+          <View style={styles.fichaItem}>
+            <Text style={styles.fichaLabel}>Integrantes</Text>
+            <Text style={styles.fichaValor}>{viaje.members?.length || 0}</Text>
+          </View>
+        </View>
+      ) : null}
 
       <Text style={styles.seccion}>Detalle</Text>
     </View>
@@ -225,6 +248,14 @@ const styles = StyleSheet.create({
   listContent: { paddingTop: 8, paddingBottom: 120 },
 
   hero: { marginHorizontal: 20, marginBottom: 16 },
+  heroEyebrow: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#126a5c",
+    textTransform: "uppercase",
+    letterSpacing: 0.3,
+    marginBottom: 4,
+  },
   heroTitle: {
     fontSize: 32,
     fontWeight: "700",
@@ -249,6 +280,22 @@ const styles = StyleSheet.create({
   resumenLabel: { color: "#cfeae3", fontSize: 13, fontWeight: "600" },
   resumenMonto: { color: "#ffffff", fontSize: 36, fontWeight: "800", marginTop: 4 },
   resumenSub: { color: "#cfeae3", fontSize: 13, marginTop: 4 },
+
+  fichaRow: {
+    flexDirection: "row",
+    marginHorizontal: 20,
+    marginBottom: 20,
+    gap: 10,
+  },
+  fichaItem: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    borderRadius: 10,
+    padding: 12,
+  },
+  fichaLabel: { fontSize: 11, color: "#6f7976", fontWeight: "600" },
+  fichaValor: { fontSize: 14, color: "#181c23", fontWeight: "700", marginTop: 3 },
+  fichaActivo: { color: "#126a5c" },
 
   seccion: {
     marginHorizontal: 20,
