@@ -96,4 +96,4 @@ const getTripSummary = async (tripId, token) => {
   }
 };
 
-export default { addMember, createViaje, getTripSummary };
+export default { addMember, createViaje, getTrips, getTripSummary };
