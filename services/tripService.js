@@ -4,6 +4,8 @@ import {
   ADD_MEMBER_ERROR,
   CREATE_TRIP_URL,
   CREATE_TRIP_ERROR,
+  TRIP_SUMMARY_URL,
+  TRIP_SUMMARY_ERROR,
 } from "../constants/index";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -52,4 +54,25 @@ const createViaje = async (nombre, destino, token) => {
   }
 };
 
-export default { addMember, createViaje };
+const getTripSummary = async (tripId, token) => {
+  try {
+    const url = `${BASE_URL}${TRIP_SUMMARY_URL.replace(":tripId", tripId)}`;
+    const response = await fetch(url, {
+      method: METHODS.GET,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || TRIP_SUMMARY_ERROR);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting trip summary:", error);
+    throw error;
+  }
+};
+
+export default { addMember, createViaje, getTripSummary };
