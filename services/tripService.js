@@ -2,7 +2,7 @@ import {
   METHODS,
   ADD_MEMBER_URL,
   ADD_MEMBER_ERROR,
-  CREATE_TRIP_URL,
+  TRIPS_URL,
   CREATE_TRIP_ERROR,
   TRIP_SUMMARY_URL,
   TRIP_SUMMARY_ERROR,
@@ -34,7 +34,7 @@ const addMember = async (tripId, email, token) => {
 const createViaje = async (nombre, destino, token) => {
   try {
     const body = { name: nombre, destination: destino };
-    const response = await fetch(`${BASE_URL}${CREATE_TRIP_URL}`, {
+    const response = await fetch(`${BASE_URL}${TRIPS_URL}`, {
       method: METHODS.POST,
       headers: {
         "Content-Type": "application/json",
