@@ -6,6 +6,7 @@ import {
   CREATE_TRIP_ERROR,
   TRIP_SUMMARY_URL,
   TRIP_SUMMARY_ERROR,
+  GET_TRIPS_ERROR,
 } from "../constants/index";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -50,6 +51,26 @@ const createViaje = async (nombre, destino, token) => {
     return data;
   } catch (error) {
     console.error("Error creating trip:", error);
+    throw error;
+  }
+};
+
+const getTrips = async (token) => {
+  try {
+    const response = await fetch(`${BASE_URL}${TRIPS_URL}`, {
+      method: METHODS.GET,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => null);
+      throw new Error(errorData?.message || GET_TRIPS_ERROR);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error getting trips:", error);
     throw error;
   }
 };
