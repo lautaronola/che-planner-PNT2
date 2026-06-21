@@ -21,6 +21,8 @@ function DetalleViajeScreen() {
   const [pagoMonto, setPagoMonto] = useState("");
   const [pagoDestinatario, setPagoDestinatario] = useState("");
   const [registrando, setRegistrando] = useState(false);
+  const [cerrarModalVisible, setCerrarModalVisible] = useState(false);
+  const [cerrarError, setCerrarError] = useState("");
 
   const cargar = async () => {
     if (!tripId) { setError("No se encontro el viaje."); setLoading(false); return; }
@@ -38,28 +40,23 @@ function DetalleViajeScreen() {
   useEffect(() => { cargar(); }, [tripId]);
 
   const handleCerrarViaje = () => {
-    Alert.alert(
-      "Finalizar Viaje",
-      "Finalizar el viaje bloqueara la edicion y generara el resumen final de pagos.",
-      [
-        { text: "Cancelar", style: "cancel" },
-        { text: "Finalizar", style: "destructive", onPress: confirmarCierre },
-      ]
-    );
+    setCerrarError("");
+    setCerrarModalVisible(true);
   };
 
   const confirmarCierre = async () => {
     setCerrando(true);
+    setCerrarError("");
     try {
       await tripService.closeTrip(tripId, auth?.token);
-      Alert.alert("Listo!", "El viaje fue cerrado.", [
-        { text: "OK", onPress: () => router.replace("/") },
-      ]);
+      setCerrarModalVisible(false);
+      router.replace("/");
     } catch (e) {
-      const msg = e.message?.includes("Closed trip")
-        ? "Este viaje ya esta cerrado."
-        : "No se pudo cerrar el viaje. Intenta de nuevo.";
-      Alert.alert("Error", msg);
+      setCerrarError(
+        e.message?.includes("Closed trip")
+          ? "Este viaje ya esta cerrado."
+          : "No se pudo cerrar el viaje. Intenta de nuevo."
+      );
     } finally {
       setCerrando(false);
     }
@@ -254,6 +251,26 @@ function DetalleViajeScreen() {
         </View>
       </Modal>
 
+      <Modal visible={cerrarModalVisible} transparent animationType="fade" onRequestClose={() => setCerrarModalVisible(false)}>
+        <View style={s.overlay}>
+          <View style={s.modalCard}>
+            <Text style={s.modalTitle}>Finalizar Viaje</Text>
+            <Text style={s.modalMensaje}>
+              Finalizar el viaje bloqueara la edicion y generara el resumen final de pagos.
+            </Text>
+            {cerrarError ? <Text style={s.modalError}>{cerrarError}</Text> : null}
+            <View style={s.modalBtns}>
+              <Pressable style={s.cancelBtn} onPress={() => setCerrarModalVisible(false)} disabled={cerrando}>
+                <Text style={s.cancelText}>Cancelar</Text>
+              </Pressable>
+              <Pressable style={[s.dangerBtn, cerrando && s.disabled]} onPress={confirmarCierre} disabled={cerrando}>
+                <Text style={s.dangerText}>{cerrando ? "Cerrando..." : "Finalizar"}</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Bottom Nav */}
       <View style={s.nav}>
         <Pressable style={s.navItem} onPress={() => router.replace("/")}>
@@ -354,6 +371,10 @@ const s = StyleSheet.create({
   cancelText: { color: "#6f7976", fontWeight: "600" },
   confirmBtn: { flex: 1, padding: 14, borderRadius: 8, backgroundColor: "#126a5c", alignItems: "center" },
   confirmText: { color: "#fff", fontWeight: "600" },
+  modalMensaje: { fontSize: 14, color: "#3f4946", lineHeight: 20, marginBottom: 20 },
+  modalError: { fontSize: 13, color: "#ba1a1a", marginBottom: 12 },
+  dangerBtn: { flex: 1, padding: 14, borderRadius: 8, backgroundColor: "#93000a", alignItems: "center" },
+  dangerText: { color: "#fff", fontWeight: "600" },
 
   // Nav
   nav: { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", justifyContent: "space-around", alignItems: "center", backgroundColor: "#fff", paddingVertical: 12, paddingBottom: 20, borderTopLeftRadius: 12, borderTopRightRadius: 12, shadowColor: "#000", shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.04, shadowRadius: 20, elevation: 10 },
