@@ -198,17 +198,22 @@ function CompartirScreen() {
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navLabel}>Inicio</Text>
         </Pressable>
-        <Pressable style={[styles.navItem, styles.navItemActive]}>
+        <Pressable
+          style={[styles.navItem, styles.navItemActive]}
+          onPress={() =>
+            router.push(
+              `/detalle-viaje?tripId=${tripId}${
+                tripName ? `&tripName=${encodeURIComponent(tripName)}` : ""
+              }`
+            )
+          }
+        >
           <Text style={styles.navIcon}>🧭</Text>
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Viajes</Text>
+          <Text style={[styles.navLabel, styles.navLabelActive]}>Viaje</Text>
         </Pressable>
         <Pressable style={styles.navItem}>
           <Text style={styles.navIcon}>🧾</Text>
           <Text style={styles.navLabel}>Gastos</Text>
-        </Pressable>
-        <Pressable style={styles.navItem}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Perfil</Text>
         </Pressable>
       </View>
     </SafeAreaView>
