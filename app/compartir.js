@@ -25,8 +25,7 @@ function CompartirScreen() {
   const [showEmailInput, setShowEmailInput] = useState(false);
 
   // Miembros mock — después se reemplazan con datos reales del backend
-  const miembros = [
-  ];
+  const miembros = [];
 
   const handleWhatsApp = () => {
     const mensaje = `¡Hola! Te invito a unirte al viaje "${tripName || "Che Planner"}" 🧳`;
@@ -34,11 +33,47 @@ function CompartirScreen() {
     Linking.openURL(url);
   };
 
+  // ── Mapea el mensaje crudo del backend a texto amigable ──────────────────
+  const getMensajeError = (rawMessage = "") => {
+    if (!tripId) {
+      return "No se encontró el viaje. Volvé atrás e intentá de nuevo.";
+    }
+    if (!auth?.token) {
+      return "Tu sesión expiró. Volvé a iniciar sesión.";
+    }
+    if (rawMessage.includes("User not found")) {
+      return "Ese email no está registrado en Che Planner. La persona primero debe crear una cuenta.";
+    }
+    if (rawMessage.includes("already on this trip")) {
+      return "Esa persona ya está en el viaje.";
+    }
+    if (rawMessage.includes("Closed trip")) {
+      return "Este viaje ya está cerrado, no se pueden agregar más personas.";
+    }
+    if (rawMessage.includes("Unauthorized")) {
+      return "Tu sesión expiró. Volvé a iniciar sesión.";
+    }
+    if (rawMessage.includes("Network request failed") || rawMessage.includes("fetch")) {
+      return "No se pudo conectar. Chequeá tu conexión.";
+    }
+    return "No se pudo agregar el integrante. Intentá de nuevo.";
+  };
+
   const handleAddMember = async () => {
+    // Validaciones previas al fetch
     if (!email.trim()) {
       Alert.alert("Error", "Ingresá un email");
       return;
     }
+    if (!tripId) {
+      Alert.alert("Error", "No se encontró el viaje. Volvé atrás e intentá de nuevo.");
+      return;
+    }
+    if (!auth?.token) {
+      Alert.alert("Error", "Tu sesión expiró. Volvé a iniciar sesión.");
+      return;
+    }
+
     setLoading(true);
     try {
       await tripService.addMember(tripId, email.trim(), auth?.token);
@@ -46,7 +81,7 @@ function CompartirScreen() {
       setEmail("");
       setShowEmailInput(false);
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", getMensajeError(error.message));
     } finally {
       setLoading(false);
     }
@@ -129,7 +164,7 @@ function CompartirScreen() {
               autoFocus
             />
             <Pressable
-              style={styles.addButton}
+              style={[styles.addButton, loading && styles.addButtonDisabled]}
               onPress={handleAddMember}
               disabled={loading}
             >
@@ -324,6 +359,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 16,
     alignItems: "center",
+  },
+  addButtonDisabled: {
+    opacity: 0.6,
   },
   addButtonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 

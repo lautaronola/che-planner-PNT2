@@ -14,19 +14,30 @@ const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 const addMember = async (tripId, email, token) => {
   const url = `${BASE_URL}${ADD_MEMBER_URL.replace(":tripId", tripId)}`;
 
-  const response = await fetch(url, {
-    method: METHODS.PATCH,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ email }),
-  });
+  let response;
+  try {
+    response = await fetch(url, {
+      method: METHODS.PATCH,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ email }),
+    });
+  } catch {
+    // Error de red: el back no respondió
+    throw new Error("Network request failed");
+  }
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error("El servidor devolvió una respuesta inválida");
+  }
 
   if (!response.ok) {
-    throw new Error(data.message || ADD_MEMBER_ERROR);
+    throw new Error(data.message || data.error || ADD_MEMBER_ERROR);
   }
 
   return data;
@@ -96,4 +107,27 @@ const getTripSummary = async (tripId, token) => {
   }
 };
 
-export default { addMember, createViaje, getTrips, getTripSummary };
+const closeTrip = async (tripId, token) => {
+  const url = `${BASE_URL}/api/trips/${tripId}/close`;
+  const response = await fetch(url, {
+    method: "PATCH",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Error al cerrar el viaje");
+  return data;
+};
+
+const addPayment = async (tripId, toEmail, amount, token) => {
+  const url = `${BASE_URL}/api/payments`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ tripId, to: toEmail, amount }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || "Error al registrar el pago");
+  return data;
+};
+
+export default { addMember, createViaje, getTrips, getTripSummary, closeTrip, addPayment };
