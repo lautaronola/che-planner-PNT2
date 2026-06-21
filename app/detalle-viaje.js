@@ -8,6 +8,32 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useAuth } from "../hooks/useAuth";
 import tripService from "../services/tripService";
 
+const inicial = (nombre) => (nombre || "?").charAt(0).toUpperCase();
+const esObjectId = (v) => typeof v === "string" && /^[a-f\d]{24}$/i.test(v);
+
+const resolverNombre = (valor, members = []) => {
+  if (!valor) return "Alguien";
+  if (typeof valor === "object") return valor.name || valor.email || "Alguien";
+  const encontrado = members.find(
+    (m) => m._id === valor || m.id === valor || m.email === valor
+  );
+  if (encontrado) return encontrado.name || encontrado.email || "Integrante";
+  return esObjectId(valor) ? "Integrante" : valor;
+};
+
+const normalizarDeudas = (debts, members = []) => {
+  const lista = Array.isArray(debts)
+    ? debts
+    : debts?.transactions || debts?.debts || debts?.detail || [];
+  return lista.map((d, i) => ({
+    id: (d.id || d._id || i).toString(),
+    deudor: resolverNombre(d.from ?? d.deudor ?? d.debtor ?? d.debtorId, members),
+    acreedor: resolverNombre(d.to ?? d.acreedor ?? d.creditor ?? d.creditorId, members),
+    concepto: d.concepto || d.concept || "Gastos del viaje",
+    monto: d.amount ?? d.monto ?? 0,
+  }));
+};
+
 function DetalleViajeScreen() {
   const { auth } = useAuth();
   const router = useRouter();
@@ -89,6 +115,9 @@ function DetalleViajeScreen() {
   const viajeActivo = summary?.trip?.status !== false;
   const nombreViaje = tripName || summary?.trip?.name || "Detalle del Viaje";
   const destino = summary?.trip?.destination || "";
+  const members = summary?.trip?.members || [];
+  const deudas = normalizarDeudas(summary?.debts, members);
+  const totalASaldar = summary?.totalDebtPending ?? summary?.totalDebt ?? 0;
 
   return (
     <SafeAreaView style={s.container}>
@@ -113,47 +142,54 @@ function DetalleViajeScreen() {
       ) : (
         <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
 
-          {/* Hero imagen del viaje */}
-          <View style={s.heroContainer}>
-            <View style={s.heroOverlay} />
-            <View style={s.heroTexto}>
-              <Text style={s.heroNombre}>{nombreViaje}</Text>
-              {destino ? <Text style={s.heroDestino}>📍 {destino}</Text> : null}
+          {/* Encabezado del viaje */}
+          <View style={s.viajeHeader}>
+            <View style={s.viajeHeaderTop}>
+              <Text style={s.viajeNombre} numberOfLines={1}>{nombreViaje}</Text>
+              <View style={[s.statusBadge, !viajeActivo && s.statusCerrado]}>
+                <Text style={s.statusText}>{viajeActivo ? "En curso" : "Cerrado"}</Text>
+              </View>
             </View>
+            {destino ? <Text style={s.viajeDestino}>📍 {destino}</Text> : null}
           </View>
 
           {/* Balance de Gastos */}
           <View style={s.seccionHeader}>
             <Text style={s.seccionTitle}>Balance de Gastos</Text>
-            <View style={[s.statusBadge, !viajeActivo && s.statusCerrado]}>
-              <Text style={s.statusText}>{viajeActivo ? "En curso" : "Cerrado"}</Text>
-            </View>
           </View>
 
-          {!summary?.debts?.debts?.length ? (
+          <View style={s.totalCard}>
+            <Text style={s.totalLabel}>Total a saldar</Text>
+            <Text style={s.totalMonto}>${Number(totalASaldar).toLocaleString("es-AR")}</Text>
+            <Text style={s.totalSub}>
+              {deudas.length} {deudas.length === 1 ? "deuda pendiente" : "deudas pendientes"} · {members.length} {members.length === 1 ? "integrante" : "integrantes"}
+            </Text>
+          </View>
+
+          {!deudas.length ? (
             <View style={s.emptyCard}>
               <Text style={s.emptyText}>Todos estan a mano por ahora.</Text>
             </View>
           ) : (
-            summary.debts.debts.map((d, i) => (
-              <View key={i} style={s.balanceCard}>
+            deudas.map((d) => (
+              <View key={d.id} style={s.balanceCard}>
                 <View style={s.balanceLeft}>
                   <View style={s.avatarStack}>
-                    <View style={[s.miniAvatar, { backgroundColor: "#a4c5ff" }]}>
-                      <Text style={s.miniAvatarText}>{d.debtorId?.slice(-1).toUpperCase()}</Text>
+                    <View style={[s.miniAvatar, { backgroundColor: "#f4b8b0" }]}>
+                      <Text style={s.miniAvatarText}>{inicial(d.deudor)}</Text>
                     </View>
                     <View style={[s.miniAvatar, s.miniAvatarOver, { backgroundColor: "#7ecbba" }]}>
-                      <Text style={s.miniAvatarText}>{d.creditorId?.slice(-1).toUpperCase()}</Text>
+                      <Text style={s.miniAvatarText}>{inicial(d.acreedor)}</Text>
                     </View>
                   </View>
-                  <View>
-                    <Text style={s.balanceDesc}>
-                      ...{d.debtorId?.slice(-4)} le debe a ...{d.creditorId?.slice(-4)}
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.balanceDesc} numberOfLines={1}>
+                      {d.deudor} le debe a {d.acreedor}
                     </Text>
-                    <Text style={s.balanceSub}>Gastos del viaje</Text>
+                    <Text style={s.balanceSub}>{d.concepto}</Text>
                   </View>
                 </View>
-                <Text style={s.balanceMonto}>${Number(d.amount || 0).toLocaleString("es-AR")}</Text>
+                <Text style={s.balanceMonto}>${Number(d.monto).toLocaleString("es-AR")}</Text>
               </View>
             ))
           )}
@@ -309,12 +345,11 @@ const s = StyleSheet.create({
 
   content: { paddingHorizontal: 20, paddingTop: 12 },
 
-  // Hero
-  heroContainer: { height: 192, borderRadius: 12, backgroundColor: "#126a5c", marginBottom: 24, overflow: "hidden", justifyContent: "flex-end" },
-  heroOverlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.3)" },
-  heroTexto: { padding: 16, zIndex: 1 },
-  heroNombre: { fontSize: 24, fontWeight: "700", color: "#fff", lineHeight: 32 },
-  heroDestino: { fontSize: 12, fontWeight: "600", color: "rgba(255,255,255,0.9)", marginTop: 2 },
+  // Encabezado viaje
+  viajeHeader: { marginBottom: 20 },
+  viajeHeaderTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+  viajeNombre: { flex: 1, fontSize: 24, fontWeight: "700", color: "#181c23" },
+  viajeDestino: { fontSize: 13, fontWeight: "600", color: "#6f7976", marginTop: 4 },
 
   // Secciones
   seccionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
@@ -323,6 +358,11 @@ const s = StyleSheet.create({
   statusCerrado: { backgroundColor: "#ffdad6" },
   statusText: { fontSize: 12, fontWeight: "600", color: "#3f4946" },
   verTodos: { fontSize: 14, fontWeight: "600", color: "#126a5c" },
+
+  totalCard: { backgroundColor: "#126a5c", borderRadius: 12, padding: 16, marginBottom: 16, shadowColor: "#126a5c", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.2, shadowRadius: 24, elevation: 4 },
+  totalLabel: { color: "#cfeae3", fontSize: 13, fontWeight: "600" },
+  totalMonto: { color: "#fff", fontSize: 30, fontWeight: "800", marginTop: 2 },
+  totalSub: { color: "#cfeae3", fontSize: 12, marginTop: 4 },
 
   // Balance cards
   balanceCard: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: "#fff", borderRadius: 12, padding: 16, marginBottom: 12, borderWidth: 1, borderColor: "#ebedf9", shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.04, shadowRadius: 20, elevation: 2 },
