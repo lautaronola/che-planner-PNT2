@@ -258,19 +258,15 @@ function DetalleViajeScreen() {
       <View style={s.nav}>
         <Pressable style={s.navItem} onPress={() => router.replace("/")}>
           <Text style={s.navIcon}>🏠</Text>
-          <Text style={s.navLabel}>Home</Text>
+          <Text style={s.navLabel}>Inicio</Text>
         </Pressable>
         <Pressable style={[s.navItem, s.navActive]}>
           <Text style={s.navIcon}>🧭</Text>
-          <Text style={[s.navLabel, s.navLabelActive]}>Trips</Text>
+          <Text style={[s.navLabel, s.navLabelActive]}>Viaje</Text>
         </Pressable>
         <Pressable style={s.navItem} onPress={() => router.push(`/deudas?tripId=${tripId}`)}>
           <Text style={s.navIcon}>🧾</Text>
-          <Text style={s.navLabel}>Expenses</Text>
-        </Pressable>
-        <Pressable style={s.navItem}>
-          <Text style={s.navIcon}>👤</Text>
-          <Text style={s.navLabel}>Profile</Text>
+          <Text style={s.navLabel}>Gastos</Text>
         </Pressable>
       </View>
     </SafeAreaView>

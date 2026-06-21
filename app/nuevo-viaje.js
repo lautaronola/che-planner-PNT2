@@ -243,17 +243,9 @@ function NuevoViajeScreen() {
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navLabel}>Inicio</Text>
         </Pressable>
-        <Pressable style={[styles.navItem, styles.navItemActive]} onPress={() => irA("/")}>
-          <Text style={styles.navIcon}>🧭</Text>
-          <Text style={[styles.navLabel, styles.navLabelActive]}>Viajes</Text>
-        </Pressable>
         <Pressable style={styles.navItem} onPress={() => irA("/")}>
           <Text style={styles.navIcon}>🧾</Text>
           <Text style={styles.navLabel}>Gastos</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => irA("/")}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Perfil</Text>
         </Pressable>
       </View>
     </SafeAreaView>

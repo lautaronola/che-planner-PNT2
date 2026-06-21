@@ -200,17 +200,22 @@ function DeudasScreen() {
           <Text style={styles.navIcon}>🏠</Text>
           <Text style={styles.navLabel}>Inicio</Text>
         </Pressable>
-        <Pressable style={styles.navItem} onPress={() => irA("/")}>
+        <Pressable
+          style={styles.navItem}
+          onPress={() =>
+            router.push(
+              `/detalle-viaje?tripId=${tripId}${
+                viaje?.name ? `&tripName=${encodeURIComponent(viaje.name)}` : ""
+              }`
+            )
+          }
+        >
           <Text style={styles.navIcon}>🧭</Text>
-          <Text style={styles.navLabel}>Viajes</Text>
+          <Text style={styles.navLabel}>Viaje</Text>
         </Pressable>
         <Pressable style={[styles.navItem, styles.navItemActive]}>
           <Text style={styles.navIcon}>🧾</Text>
           <Text style={[styles.navLabel, styles.navLabelActive]}>Gastos</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => irA("/")}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Perfil</Text>
         </Pressable>
       </View>
     </SafeAreaView>
