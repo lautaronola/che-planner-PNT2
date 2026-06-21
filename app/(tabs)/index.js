@@ -46,7 +46,8 @@ function HomeScreen() {
   const renderTrip = ({ item }) => (
     <Pressable
       style={styles.viajeCard}
-      onPress={() => router.push(`/deudas?tripId=${item._id}`)}
+      onPress={() => router.push(`/detalle-viaje?tripId=${item._id}&tripName=${encodeURIComponent(item.name)}`)}
+
     >
       <View style={styles.viajeInfo}>
         <Text style={styles.viajeNombre} numberOfLines={1}>

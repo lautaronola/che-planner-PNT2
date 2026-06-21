@@ -20,6 +20,8 @@ const GET_TRIPS_ERROR = "Error al obtener los viajes";
 const ADD_MEMBER_ERROR = "Error al invitar al integrante";
 const SEARCH_USERS_ERROR = "Error al buscar usuarios";
 const TRIP_SUMMARY_ERROR = "Error al obtener el resumen del viaje";
+const CLOSE_TRIP_URL = "/api/trips/:tripId/close";
+const ADD_PAYMENT_URL = "/api/payments";
 
 export {
   AUTH_KEY,
@@ -37,4 +39,6 @@ export {
   ADD_MEMBER_ERROR,
   SEARCH_USERS_ERROR,
   TRIP_SUMMARY_ERROR,
+  CLOSE_TRIP_URL,
+  ADD_PAYMENT_URL
 };
