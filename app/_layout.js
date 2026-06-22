@@ -9,6 +9,11 @@ function RootNavigation() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Protected guard={isLoggedIn}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="detalle-viaje" />
+        <Stack.Screen name="nuevo-viaje" />
+        <Stack.Screen name="deudas" />
+        <Stack.Screen name="compartir" />
+        <Stack.Screen name="escanearTicket" />
       </Stack.Protected>
 
       <Stack.Protected guard={!isLoggedIn}>

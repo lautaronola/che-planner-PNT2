@@ -9,7 +9,6 @@ import {
   Platform,
   Image,
   Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -39,7 +38,6 @@ function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -86,7 +84,6 @@ function LoginScreen() {
           </Pressable>
         </AuthCard>
       </KeyboardAvoidingView>
-      </TouchableWithoutFeedback>
     </SafeAreaView>
   );
 }
