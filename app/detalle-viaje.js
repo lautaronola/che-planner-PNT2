@@ -119,7 +119,7 @@ function DetalleViajeScreen() {
       return;
     }
     if (!pagoDestinatario.trim()) {
-      Alert.alert("Error", "Ingresa el email de a quien le pagas.");
+      Alert.alert("Error", "Selecciona a quien le pagas.");
       return;
     }
     setRegistrando(true);
@@ -147,6 +147,8 @@ function DetalleViajeScreen() {
   const nombreViaje = tripName || summary?.trip?.name || "Detalle del Viaje";
   const destino = summary?.trip?.destination || "";
   const members = summary?.trip?.members || [];
+  const creadorId = summary?.trip?.createdBy;
+  const integrantes = members.filter((m) => (m._id || m.id) !== creadorId);
   const deudas = normalizarDeudas(summary?.debts, members);
   const totalASaldar = summary?.totalDebtPending ?? summary?.totalDebt ?? 0;
 
@@ -323,15 +325,55 @@ function DetalleViajeScreen() {
         <View style={s.overlay}>
             <View style={s.modalCard}>
               <Text style={s.modalTitle}>Registrar Pago</Text>
-              <Text style={s.modalLabel}>Email de a quien le pagas</Text>
-              <TextInput
-                style={s.input}
-                placeholder="email@ejemplo.com"
-                value={pagoDestinatario}
-                onChangeText={setPagoDestinatario}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
+              <Text style={s.modalLabel}>¿A quién le pagás?</Text>
+              {integrantes.length === 0 ? (
+                <Text style={s.vacioText}>No hay integrantes para pagar.</Text>
+              ) : (
+                <View style={s.listaIntegrantes}>
+                  {integrantes.map((m) => {
+                    const id = m._id || m.id;
+                    const activo = pagoDestinatario === id;
+                    return (
+                      <Pressable
+                        key={id}
+                        style={s.integranteRow}
+                        onPress={() => setPagoDestinatario(id)}
+                      >
+                        <View style={s.integranteLeft}>
+                          <View style={s.integranteAvatar}>
+                            <Text style={s.integranteAvatarText}>
+                              {inicial(m.name || m.email)}
+                            </Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={s.integranteName}>
+                              {m.name || "Integrante"}
+                            </Text>
+                            <Text style={s.integranteEmail}>{m.email}</Text>
+                          </View>
+                        </View>
+                        <View
+                          style={[
+                            s.toggle,
+                            activo ? s.toggleActivo : s.toggleInactivo,
+                          ]}
+                        >
+                          <Text
+                            style={[
+                              s.toggleText,
+                              activo
+                                ? s.toggleTextActivo
+                                : s.toggleTextInactivo,
+                            ]}
+                          >
+                            {activo ? "✓" : "+"}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
               <Text style={s.modalLabel}>Monto ($)</Text>
               <TextInput
                 style={s.input}
@@ -672,6 +714,47 @@ const s = StyleSheet.create({
     color: "#3f4946",
     marginBottom: 6,
   },
+  vacioText: { fontSize: 13, color: "#6f7976", marginBottom: 16 },
+  listaIntegrantes: { marginBottom: 16, gap: 8 },
+  integranteRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "#dfe2ed",
+    borderRadius: 8,
+  },
+  integranteLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    flex: 1,
+  },
+  integranteAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    backgroundColor: "#7ecbba",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  integranteAvatarText: { fontWeight: "700", fontSize: 14, color: "#00564a" },
+  integranteName: { fontSize: 14, fontWeight: "600", color: "#181c23" },
+  integranteEmail: { fontSize: 12, color: "#6f7976" },
+  toggle: {
+    width: 28,
+    height: 28,
+    borderRadius: 999,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  toggleInactivo: { borderWidth: 2, borderColor: "rgba(18,106,92,0.2)" },
+  toggleActivo: { backgroundColor: "#126a5c" },
+  toggleText: { fontSize: 14, fontWeight: "700" },
+  toggleTextInactivo: { color: "#126a5c" },
+  toggleTextActivo: { color: "#ffffff" },
   input: {
     backgroundColor: "#f9f9ff",
     borderWidth: 1,
