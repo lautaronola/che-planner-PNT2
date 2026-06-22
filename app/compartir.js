@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -8,7 +8,6 @@ import {
   ScrollView,
   TextInput,
   Linking,
-  FlatList,
   Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -24,9 +23,20 @@ function CompartirScreen() {
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
+  const [miembros, setMiembros] = useState([]);
 
-  // Miembros mock — después se reemplazan con datos reales del backend
-  const miembros = [];
+  useEffect(() => {
+    const fetchMiembros = async () => {
+      try {
+        const data = await tripService.getTripSummary(tripId, auth?.token);
+        const members = data?.trip?.members || [];
+        setMiembros(members);
+      } catch (e) {
+        console.log("Error cargando miembros:", e.message);
+      }
+    };
+    if (tripId) fetchMiembros();
+  }, [tripId]);
 
   const handleWhatsApp = () => {
     const mensaje = `¡Hola! Te invito a unirte al viaje "${tripName || "Che Planner"}" 🧳`;
@@ -34,7 +44,6 @@ function CompartirScreen() {
     Linking.openURL(url);
   };
 
-  // ── Mapea el mensaje crudo del backend a texto amigable ──────────────────
   const getMensajeError = (rawMessage = "") => {
     if (!tripId) {
       return "No se encontró el viaje. Volvé atrás e intentá de nuevo.";
@@ -65,7 +74,6 @@ function CompartirScreen() {
 
   const handleAddMember = async () => {
     Keyboard.dismiss();
-    // Validaciones previas al fetch
     if (!email.trim()) {
       Alert.alert("Error", "Ingresá un email");
       return;
@@ -88,6 +96,9 @@ function CompartirScreen() {
       Alert.alert("¡Listo!", `${email} fue agregado al viaje`);
       setEmail("");
       setShowEmailInput(false);
+      // Recargar miembros después de agregar uno nuevo
+      const data = await tripService.getTripSummary(tripId, auth?.token);
+      setMiembros(data?.trip?.members || []);
     } catch (error) {
       Alert.alert("Error", getMensajeError(error.message));
     } finally {
@@ -131,19 +142,21 @@ function CompartirScreen() {
             <Text style={styles.sectionTitle}>Viajeros Actuales</Text>
             <View style={styles.badge}>
               <Text style={styles.badgeText}>
-                {miembros.length + 1} Miembros
+                {miembros.length} Miembros
               </Text>
             </View>
           </View>
 
           <View style={styles.grid}>
             {miembros.map((m) => (
-              <View key={m.id} style={styles.card}>
-                <View style={[styles.cardAvatar, { backgroundColor: m.color }]}>
-                  <Text style={styles.cardAvatarText}>{m.nombre[0]}</Text>
+              <View key={m._id || m.id} style={styles.card}>
+                <View style={[styles.cardAvatar, { backgroundColor: "#7ecbba" }]}>
+                  <Text style={styles.cardAvatarText}>
+                    {(m.name || m.email || "?").charAt(0).toUpperCase()}
+                  </Text>
                 </View>
-                <Text style={styles.cardName}>{m.nombre}</Text>
-                <Text style={styles.cardRol}>{m.rol}</Text>
+                <Text style={styles.cardName}>{m.name || "Integrante"}</Text>
+                <Text style={styles.cardRol}>{m.email}</Text>
               </View>
             ))}
 
@@ -246,7 +259,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: "#f9f9ff",
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
   backButton: {
     padding: 8,
     borderRadius: 999,
@@ -255,15 +267,6 @@ const styles = StyleSheet.create({
   backIcon: { fontSize: 18, color: "#126a5c" },
   headerTitle: { flex: 1, textAlign: "center", fontSize: 18, fontWeight: "600", color: "#126a5c" },
   headerSpacer: { width: 30 },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
-    backgroundColor: "#7ecbba",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  avatarText: { color: "#fff", fontWeight: "700", fontSize: 14 },
 
   // Content
   content: { paddingHorizontal: 20, paddingBottom: 100 },
@@ -380,9 +383,7 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
   },
-  addButtonDisabled: {
-    opacity: 0.6,
-  },
+  addButtonDisabled: { opacity: 0.6 },
   addButtonText: { color: "#fff", fontWeight: "600", fontSize: 16 },
 
   // Link
