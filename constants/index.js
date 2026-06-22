@@ -23,7 +23,7 @@ const TRIP_SUMMARY_ERROR = "Error al obtener el resumen del viaje";
 const CLOSE_TRIP_URL = "/api/trips/:tripId/close";
 const ADD_PAYMENT_URL = "/api/payments";
 const ADD_EXPENSE_URL = "/api/expenses";
-const ADD_EXPENSE_ERROR = "Error al agregar el gasto";
+const ADD_EXPENSE_ERROR = "Error al registrar el gasto";
 
 export {
   AUTH_KEY,

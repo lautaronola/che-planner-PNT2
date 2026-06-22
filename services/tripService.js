@@ -144,20 +144,13 @@ const addExpense = async (
   splitBetween,
   token,
 ) => {
-  const url = `${BASE_URL}${ADD_EXPENSE_URL}`;
-  const response = await fetch(url, {
+  const response = await fetch(`${BASE_URL}${ADD_EXPENSE_URL}`, {
     method: METHODS.POST,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({
-      tripId,
-      description,
-      totalAmount,
-      paidBy,
-      splitBetween,
-    }),
+    body: JSON.stringify({ tripId, description, totalAmount, paidBy, splitBetween }),
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.message || ADD_EXPENSE_ERROR);
