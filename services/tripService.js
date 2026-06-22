@@ -7,6 +7,8 @@ import {
   TRIP_SUMMARY_URL,
   TRIP_SUMMARY_ERROR,
   GET_TRIPS_ERROR,
+  ADD_EXPENSE_URL,
+  ADD_EXPENSE_ERROR,
 } from "../constants/index";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
@@ -134,6 +136,20 @@ const addPayment = async (tripId, toEmail, amount, token) => {
   return data;
 };
 
+const addExpense = async (tripId, description, totalAmount, paidBy, token) => {
+  const response = await fetch(`${BASE_URL}${ADD_EXPENSE_URL}`, {
+    method: METHODS.POST,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ tripId, description, totalAmount, paidBy }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.message || ADD_EXPENSE_ERROR);
+  return data;
+};
+
 export default {
   addMember,
   createViaje,
@@ -141,4 +157,5 @@ export default {
   getTripSummary,
   closeTrip,
   addPayment,
+  addExpense,
 };

@@ -12,6 +12,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { CameraView, useCameraPermissions } from "expo-camera";
+import { useAuth } from "../hooks/useAuth";
+import tripService from "../services/tripService";
 
 // ─── ESTADOS DE LA PANTALLA ───────────────────────────────────────────────────
 // "camera"   → visor de cámara activo
@@ -21,11 +23,13 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 function EscanearTicketScreen() {
   const router = useRouter();
   const { tripId } = useLocalSearchParams();
+  const { auth } = useAuth();
 
   const [permission, requestPermission] = useCameraPermissions();
   const [stage, setStage] = useState("camera"); // "camera" | "preview"
   const [photoUri, setPhotoUri] = useState(null);
   const [taking, setTaking] = useState(false);
+  const [guardando, setGuardando] = useState(false);
 
   // Campos del gasto — los completa el usuario (o Azure en el futuro)
   const [monto, setMonto] = useState("");
@@ -71,15 +75,28 @@ function EscanearTicketScreen() {
   };
 
   // ── Confirmar gasto ─────────────────────────────────────────────────────────
-  const handleConfirm = () => {
-    if (!monto.trim()) {
-      Alert.alert("Error", "Ingresá el monto del gasto.");
+  const handleConfirm = async () => {
+    if (!monto.trim() || isNaN(Number(monto)) || Number(monto) <= 0) {
+      Alert.alert("Error", "Ingresá un monto válido mayor a 0.");
       return;
     }
-    // Acá se llama a la API de gastos (lo integra Lautaro con Azure)
-    Alert.alert("¡Listo!", `Gasto de $${monto} agregado al viaje.`, [
-      { text: "OK", onPress: () => router.back() },
-    ]);
+    setGuardando(true);
+    try {
+      await tripService.addExpense(
+        tripId,
+        descripcion.trim() || "Sin descripción",
+        Number(monto),
+        auth?.user?._id || auth?.user?.id,
+        auth?.token,
+      );
+      Alert.alert("¡Listo!", `Gasto de $${monto} agregado al viaje.`, [
+        { text: "OK", onPress: () => router.back() },
+      ]);
+    } catch (e) {
+      Alert.alert("Error", "No se pudo registrar el gasto. Intentá de nuevo.");
+    } finally {
+      setGuardando(false);
+    }
   };
 
   // ── Sin permiso ─────────────────────────────────────────────────────────────
@@ -252,8 +269,14 @@ function EscanearTicketScreen() {
         <Pressable style={styles.retryButton} onPress={handleRetake}>
           <Text style={styles.retryButtonText}>↺  Reintentar</Text>
         </Pressable>
-        <Pressable style={styles.confirmButton} onPress={handleConfirm}>
-          <Text style={styles.confirmButtonText}>✓  Confirmar</Text>
+        <Pressable
+          style={[styles.confirmButton, guardando && { opacity: 0.6 }]}
+          onPress={handleConfirm}
+          disabled={guardando}
+        >
+          <Text style={styles.confirmButtonText}>
+            {guardando ? "Guardando..." : "✓  Confirmar"}
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>

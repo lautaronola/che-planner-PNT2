@@ -57,10 +57,11 @@ function DetalleViajeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [cerrando, setCerrando] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [pagoMonto, setPagoMonto] = useState("");
-  const [pagoDestinatario, setPagoDestinatario] = useState("");
-  const [registrando, setRegistrando] = useState(false);
+  const [selectorVisible, setSelectorVisible] = useState(false);
+  const [gastoManualVisible, setGastoManualVisible] = useState(false);
+  const [gastoMonto, setGastoMonto] = useState("");
+  const [gastoDesc, setGastoDesc] = useState("");
+  const [guardandoGasto, setGuardandoGasto] = useState(false);
   const [cerrarModalVisible, setCerrarModalVisible] = useState(false);
   const [cerrarError, setCerrarError] = useState("");
 
@@ -108,37 +109,30 @@ function DetalleViajeScreen() {
     }
   };
 
-  const handleRegistrarPago = async () => {
+  const handleAgregarGastoManual = async () => {
     Keyboard.dismiss();
-    if (
-      !pagoMonto.trim() ||
-      isNaN(Number(pagoMonto)) ||
-      Number(pagoMonto) <= 0
-    ) {
+    if (!gastoMonto.trim() || isNaN(Number(gastoMonto)) || Number(gastoMonto) <= 0) {
       Alert.alert("Error", "Ingresa un monto valido mayor a 0.");
       return;
     }
-    if (!pagoDestinatario.trim()) {
-      Alert.alert("Error", "Selecciona a quien le pagas.");
-      return;
-    }
-    setRegistrando(true);
+    setGuardandoGasto(true);
     try {
-      await tripService.addPayment(
+      await tripService.addExpense(
         tripId,
-        pagoDestinatario.trim(),
-        Number(pagoMonto),
+        gastoDesc.trim() || "Sin descripcion",
+        Number(gastoMonto),
+        auth?.user?._id || auth?.user?.id,
         auth?.token,
       );
-      Alert.alert("Listo!", `Pago de $${pagoMonto} registrado correctamente.`);
-      setPagoMonto("");
-      setPagoDestinatario("");
-      setModalVisible(false);
+      Alert.alert("Listo!", `Gasto de $${gastoMonto} agregado al viaje.`);
+      setGastoMonto("");
+      setGastoDesc("");
+      setGastoManualVisible(false);
       cargar();
     } catch (e) {
-      Alert.alert("Error", "No se pudo registrar el pago. Intenta de nuevo.");
+      Alert.alert("Error", "No se pudo registrar el gasto. Intenta de nuevo.");
     } finally {
-      setRegistrando(false);
+      setGuardandoGasto(false);
     }
   };
 
@@ -310,101 +304,103 @@ function DetalleViajeScreen() {
 
       {/* FAB + */}
       {!loading && !error && viajeActivo && (
-        <Pressable style={s.fab} onPress={() => setModalVisible(true)}>
+        <Pressable style={s.fab} onPress={() => setSelectorVisible(true)}>
           <Text style={s.fabText}>+</Text>
         </Pressable>
       )}
 
-      {/* Modal Registrar Pago */}
+      {/* Modal selector: manual o cámara */}
       <Modal
-        visible={modalVisible}
+        visible={selectorVisible}
         transparent
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
+        animationType="fade"
+        onRequestClose={() => setSelectorVisible(false)}
       >
         <View style={s.overlay}>
-            <View style={s.modalCard}>
-              <Text style={s.modalTitle}>Registrar Pago</Text>
-              <Text style={s.modalLabel}>¿A quién le pagás?</Text>
-              {integrantes.length === 0 ? (
-                <Text style={s.vacioText}>No hay integrantes para pagar.</Text>
-              ) : (
-                <View style={s.listaIntegrantes}>
-                  {integrantes.map((m) => {
-                    const id = m._id || m.id;
-                    const activo = pagoDestinatario === id;
-                    return (
-                      <Pressable
-                        key={id}
-                        style={s.integranteRow}
-                        onPress={() => setPagoDestinatario(id)}
-                      >
-                        <View style={s.integranteLeft}>
-                          <View style={s.integranteAvatar}>
-                            <Text style={s.integranteAvatarText}>
-                              {inicial(m.name || m.email)}
-                            </Text>
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={s.integranteName}>
-                              {m.name || "Integrante"}
-                            </Text>
-                            <Text style={s.integranteEmail}>{m.email}</Text>
-                          </View>
-                        </View>
-                        <View
-                          style={[
-                            s.toggle,
-                            activo ? s.toggleActivo : s.toggleInactivo,
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              s.toggleText,
-                              activo
-                                ? s.toggleTextActivo
-                                : s.toggleTextInactivo,
-                            ]}
-                          >
-                            {activo ? "✓" : "+"}
-                          </Text>
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              )}
-              <Text style={s.modalLabel}>Monto ($)</Text>
-              <TextInput
-                style={s.input}
-                placeholder="0"
-                value={pagoMonto}
-                onChangeText={setPagoMonto}
-                keyboardType="numeric"
-              />
-              <View style={s.modalBtns}>
-                <Pressable
-                  style={s.cancelBtn}
-                  onPress={() => {
-                    setModalVisible(false);
-                    setPagoMonto("");
-                    setPagoDestinatario("");
-                  }}
-                >
-                  <Text style={s.cancelText}>Cancelar</Text>
-                </Pressable>
-                <Pressable
-                  style={[s.confirmBtn, registrando && s.disabled]}
-                  onPress={handleRegistrarPago}
-                  disabled={registrando}
-                >
-                  <Text style={s.confirmText}>
-                    {registrando ? "Registrando..." : "Confirmar"}
-                  </Text>
-                </Pressable>
-              </View>
+          <View style={s.modalCard}>
+            <Text style={s.modalTitle}>Agregar Gasto</Text>
+            <Text style={s.modalLabel}>¿Cómo querés ingresar el gasto?</Text>
+            <View style={s.selectorOpciones}>
+              <Pressable
+                style={s.selectorOpcion}
+                onPress={() => {
+                  setSelectorVisible(false);
+                  setGastoManualVisible(true);
+                }}
+              >
+                <Text style={s.selectorIcon}>✏️</Text>
+                <Text style={s.selectorOpcionTitle}>Manual</Text>
+                <Text style={s.selectorOpcionSub}>Ingresá el monto y descripción</Text>
+              </Pressable>
+              <Pressable
+                style={s.selectorOpcion}
+                onPress={() => {
+                  setSelectorVisible(false);
+                  router.push(`/escanearTicket?tripId=${tripId}`);
+                }}
+              >
+                <Text style={s.selectorIcon}>📷</Text>
+                <Text style={s.selectorOpcionTitle}>Cámara</Text>
+                <Text style={s.selectorOpcionSub}>Escaneá el ticket con la cámara</Text>
+              </Pressable>
+            </View>
+            <Pressable style={s.cancelBtn} onPress={() => setSelectorVisible(false)}>
+              <Text style={s.cancelText}>Cancelar</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal gasto manual */}
+      <Modal
+        visible={gastoManualVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setGastoManualVisible(false)}
+      >
+        <View style={s.overlay}>
+          <View style={s.modalCard}>
+            <Text style={s.modalTitle}>Gasto Manual</Text>
+            <Text style={s.modalLabel}>Monto ($)</Text>
+            <TextInput
+              style={s.input}
+              placeholder="0"
+              value={gastoMonto}
+              onChangeText={setGastoMonto}
+              keyboardType="decimal-pad"
+              autoFocus
+            />
+            <Text style={s.modalLabel}>Descripción (opcional)</Text>
+            <TextInput
+              style={s.input}
+              placeholder="Ej: Cena, nafta, hotel..."
+              value={gastoDesc}
+              onChangeText={setGastoDesc}
+              returnKeyType="done"
+            />
+            <View style={s.modalBtns}>
+              <Pressable
+                style={s.cancelBtn}
+                onPress={() => {
+                  setGastoManualVisible(false);
+                  setGastoMonto("");
+                  setGastoDesc("");
+                }}
+              >
+                <Text style={s.cancelText}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                style={[s.confirmBtn, guardandoGasto && s.disabled]}
+                onPress={handleAgregarGastoManual}
+                disabled={guardandoGasto}
+              >
+                <Text style={s.confirmText}>
+                  {guardandoGasto ? "Guardando..." : "Confirmar"}
+                </Text>
+              </Pressable>
             </View>
           </View>
+        </View>
       </Modal>
 
       <Modal
@@ -694,6 +690,22 @@ const s = StyleSheet.create({
   },
   fabText: { color: "#fff", fontSize: 32, fontWeight: "300", lineHeight: 38 },
 
+  // Selector opciones
+  selectorOpciones: { flexDirection: "row", gap: 12, marginBottom: 16 },
+  selectorOpcion: {
+    flex: 1,
+    alignItems: "center",
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: "#dfe2ed",
+    backgroundColor: "#f9f9ff",
+    gap: 6,
+  },
+  selectorIcon: { fontSize: 28 },
+  selectorOpcionTitle: { fontSize: 14, fontWeight: "700", color: "#181c23" },
+  selectorOpcionSub: { fontSize: 11, color: "#6f7976", textAlign: "center" },
+
   // Modal
   overlay: {
     flex: 1,
@@ -720,47 +732,6 @@ const s = StyleSheet.create({
     color: "#3f4946",
     marginBottom: 6,
   },
-  vacioText: { fontSize: 13, color: "#6f7976", marginBottom: 16 },
-  listaIntegrantes: { marginBottom: 16, gap: 8 },
-  integranteRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: "#dfe2ed",
-    borderRadius: 8,
-  },
-  integranteLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    flex: 1,
-  },
-  integranteAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 999,
-    backgroundColor: "#7ecbba",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  integranteAvatarText: { fontWeight: "700", fontSize: 14, color: "#00564a" },
-  integranteName: { fontSize: 14, fontWeight: "600", color: "#181c23" },
-  integranteEmail: { fontSize: 12, color: "#6f7976" },
-  toggle: {
-    width: 28,
-    height: 28,
-    borderRadius: 999,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toggleInactivo: { borderWidth: 2, borderColor: "rgba(18,106,92,0.2)" },
-  toggleActivo: { backgroundColor: "#126a5c" },
-  toggleText: { fontSize: 14, fontWeight: "700" },
-  toggleTextInactivo: { color: "#126a5c" },
-  toggleTextActivo: { color: "#ffffff" },
   input: {
     backgroundColor: "#f9f9ff",
     borderWidth: 1,
