@@ -46,8 +46,11 @@ function HomeScreen() {
   const renderTrip = ({ item }) => (
     <Pressable
       style={styles.viajeCard}
-      onPress={() => router.push(`/detalle-viaje?tripId=${item._id}&tripName=${encodeURIComponent(item.name)}`)}
-
+      onPress={() =>
+        router.push(
+          `/detalle-viaje?tripId=${item._id}&tripName=${encodeURIComponent(item.name)}`,
+        )
+      }
     >
       <View style={styles.viajeInfo}>
         <Text style={styles.viajeNombre} numberOfLines={1}>
@@ -79,7 +82,7 @@ function HomeScreen() {
       <View style={styles.hero}>
         <Text style={styles.heroTitle}>Tus Viajes</Text>
         <Text style={styles.heroSubtitle}>
-          Tocá un viaje para ver deudas y gastos.
+          Tocá un viaje para ver los gastos.
         </Text>
       </View>
       <Text style={styles.seccion}>

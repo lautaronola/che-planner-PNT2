@@ -122,12 +122,23 @@ const addPayment = async (tripId, toEmail, amount, token) => {
   const url = `${BASE_URL}/api/payments`;
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify({ tripId, to: toEmail, amount }),
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.message || "Error al registrar el pago");
+  if (!response.ok)
+    throw new Error(data.message || "Error al registrar el pago");
   return data;
 };
 
-export default { addMember, createViaje, getTrips, getTripSummary, closeTrip, addPayment };
+export default {
+  addMember,
+  createViaje,
+  getTrips,
+  getTripSummary,
+  closeTrip,
+  addPayment,
+};
