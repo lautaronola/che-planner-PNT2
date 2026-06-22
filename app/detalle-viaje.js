@@ -23,10 +23,13 @@ const resolverNombre = (valor, members = []) => {
   if (!valor) return "Alguien";
   if (typeof valor === "object") return valor.name || valor.email || "Alguien";
   const encontrado = members.find(
-    (m) => m._id === valor || m.id === valor || m.email === valor,
+    (m) =>
+      (m._id?.toString?.() || m._id) === valor ||
+      (m.id?.toString?.() || m.id) === valor ||
+      m.email === valor,
   );
   if (encontrado) return encontrado.name || encontrado.email || "Integrante";
-  return esObjectId(valor) ? "Integrante" : valor;
+  return valor;
 };
 
 const normalizarDeudas = (debts, members = []) => {
