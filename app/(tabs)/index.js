@@ -98,6 +98,7 @@ function HomeScreen() {
           style={styles.logo}
           resizeMode="contain"
         />
+        <Text style={styles.headerTitle}>Che-Planner</Text>
       </View>
 
       {loading ? (
@@ -166,16 +167,17 @@ function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9f9ff" },
   header: {
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
-    height: 56,
+    paddingVertical: 10,
   },
   logo: {
-    width: 110,
-    height: 28,
+    width: 48,
+    height: 48,
   },
+  headerTitle: { fontSize: 13, fontWeight: "700", color: "#126a5c", marginTop: 2 },
 
   centro: {
     flex: 1,
