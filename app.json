@@ -6,7 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -25,15 +24,22 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    
+
     "plugins": [
       "expo-router",
-    [
-    "expo-camera",
-    {
-      "cameraPermission": "Necesitamos acceso a tu cámara para escanear tickets."
-    }
-  ]
-]
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Necesitamos acceso a tu cámara para escanear tickets."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Necesitamos acceso a tu biblioteca de fotos para cambiar tu foto de perfil.",
+          "cameraPermission": "Necesitamos acceso a tu cámara para tomar una foto de perfil."
+        }
+      ]
+    ]
   }
 }
