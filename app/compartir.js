@@ -9,6 +9,7 @@ import {
   TextInput,
   Linking,
   FlatList,
+  Keyboard,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -53,20 +54,27 @@ function CompartirScreen() {
     if (rawMessage.includes("Unauthorized")) {
       return "Tu sesión expiró. Volvé a iniciar sesión.";
     }
-    if (rawMessage.includes("Network request failed") || rawMessage.includes("fetch")) {
+    if (
+      rawMessage.includes("Network request failed") ||
+      rawMessage.includes("fetch")
+    ) {
       return "No se pudo conectar. Chequeá tu conexión.";
     }
     return "No se pudo agregar el integrante. Intentá de nuevo.";
   };
 
   const handleAddMember = async () => {
+    Keyboard.dismiss();
     // Validaciones previas al fetch
     if (!email.trim()) {
       Alert.alert("Error", "Ingresá un email");
       return;
     }
     if (!tripId) {
-      Alert.alert("Error", "No se encontró el viaje. Volvé atrás e intentá de nuevo.");
+      Alert.alert(
+        "Error",
+        "No se encontró el viaje. Volvé atrás e intentá de nuevo.",
+      );
       return;
     }
     if (!auth?.token) {
@@ -107,8 +115,11 @@ function CompartirScreen() {
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Botón WhatsApp */}
         <Pressable style={styles.whatsappButton} onPress={handleWhatsApp}>
           <View style={styles.whatsappLeft}>
@@ -123,7 +134,9 @@ function CompartirScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Viajeros Actuales</Text>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>{miembros.length + 1} Miembros</Text>
+              <Text style={styles.badgeText}>
+                {miembros.length + 1} Miembros
+              </Text>
             </View>
           </View>
 
@@ -189,7 +202,6 @@ function CompartirScreen() {
             </Text>
           </Pressable>
         </View>
-
       </ScrollView>
 
       {/* Bottom Nav */}
@@ -204,7 +216,7 @@ function CompartirScreen() {
             router.push(
               `/detalle-viaje?tripId=${tripId}${
                 tripName ? `&tripName=${encodeURIComponent(tripName)}` : ""
-              }`
+              }`,
             )
           }
         >
@@ -390,7 +402,12 @@ const styles = StyleSheet.create({
   linkLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
   linkIcon: { fontSize: 18 },
   linkText: { fontSize: 14, color: "#6f7976", flex: 1 },
-  copyButton: { fontSize: 15, fontWeight: "600", color: "#126a5c", marginLeft: 16 },
+  copyButton: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#126a5c",
+    marginLeft: 16,
+  },
 
   // Bottom Nav
   bottomNav: {

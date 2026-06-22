@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Text, View, Pressable, Alert, StyleSheet,
   ScrollView, Modal, TextInput, ActivityIndicator, Image,
+  Keyboard, TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -89,6 +90,7 @@ function DetalleViajeScreen() {
   };
 
   const handleRegistrarPago = async () => {
+    Keyboard.dismiss();
     if (!pagoMonto.trim() || isNaN(Number(pagoMonto)) || Number(pagoMonto) <= 0) {
       Alert.alert("Error", "Ingresa un monto valido mayor a 0.");
       return;
@@ -255,6 +257,7 @@ function DetalleViajeScreen() {
 
       {/* Modal Registrar Pago */}
       <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={() => setModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={s.overlay}>
           <View style={s.modalCard}>
             <Text style={s.modalTitle}>Registrar Pago</Text>
@@ -285,6 +288,7 @@ function DetalleViajeScreen() {
             </View>
           </View>
         </View>
+        </TouchableWithoutFeedback>
       </Modal>
 
       <Modal visible={cerrarModalVisible} transparent animationType="fade" onRequestClose={() => setCerrarModalVisible(false)}>
