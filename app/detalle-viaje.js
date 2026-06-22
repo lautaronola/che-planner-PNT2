@@ -122,6 +122,7 @@ function DetalleViajeScreen() {
         gastoDesc.trim() || "Sin descripcion",
         Number(gastoMonto),
         auth?.user?._id || auth?.user?.id,
+        null,
         auth?.token,
       );
       Alert.alert("Listo!", `Gasto de $${gastoMonto} agregado al viaje.`);
@@ -441,7 +442,6 @@ function DetalleViajeScreen() {
         </View>
       </Modal>
 
-      {/* Bottom Nav */}
       <View style={s.nav}>
         <Pressable style={s.navItem} onPress={() => router.replace("/")}>
           <Text style={s.navIcon}>🏠</Text>
