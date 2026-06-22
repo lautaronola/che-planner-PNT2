@@ -22,6 +22,8 @@ const SEARCH_USERS_ERROR = "Error al buscar usuarios";
 const TRIP_SUMMARY_ERROR = "Error al obtener el resumen del viaje";
 const CLOSE_TRIP_URL = "/api/trips/:tripId/close";
 const ADD_PAYMENT_URL = "/api/payments";
+const ADD_EXPENSE_URL = "/api/expenses";
+const ADD_EXPENSE_ERROR = "Error al agregar el gasto";
 
 export {
   AUTH_KEY,
@@ -40,5 +42,7 @@ export {
   SEARCH_USERS_ERROR,
   TRIP_SUMMARY_ERROR,
   CLOSE_TRIP_URL,
-  ADD_PAYMENT_URL
+  ADD_PAYMENT_URL,
+  ADD_EXPENSE_URL,
+  ADD_EXPENSE_ERROR,
 };
