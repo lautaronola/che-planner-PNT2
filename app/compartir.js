@@ -104,12 +104,11 @@ function CompartirScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backIcon}>←</Text>
-          </Pressable>
-          <Text style={styles.headerTitle}>Compartir Viaje</Text>
-        </View>
+        <Pressable style={styles.backButton} onPress={() => router.back()}>
+          <Text style={styles.backIcon}>←</Text>
+        </Pressable>
+        <Text style={styles.headerTitle}>Compartir Viaje</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -248,7 +247,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#ebedf9",
   },
   backIcon: { fontSize: 18, color: "#126a5c" },
-  headerTitle: { fontSize: 18, fontWeight: "600", color: "#126a5c" },
+  headerTitle: { flex: 1, textAlign: "center", fontSize: 18, fontWeight: "600", color: "#126a5c" },
+  headerSpacer: { width: 30 },
   avatar: {
     width: 32,
     height: 32,

@@ -95,6 +95,7 @@ function NuevoViajeScreen() {
           <Text style={styles.backIcon}>←</Text>
         </Pressable>
         <Text style={styles.headerTitle}>Che-Planner</Text>
+        <View style={styles.headerSpacer} />
       </View>
 
       <ScrollView
@@ -260,7 +261,8 @@ const styles = StyleSheet.create({
   },
   backButton: { padding: 4 },
   backIcon: { fontSize: 22, color: "#126a5c" },
-  headerTitle: { fontSize: 18, fontWeight: "600", color: "#126a5c" },
+  headerTitle: { flex: 1, textAlign: "center", fontSize: 18, fontWeight: "600", color: "#126a5c" },
+  headerSpacer: { width: 30 },
   avatar: {
     width: 32,
     height: 32,

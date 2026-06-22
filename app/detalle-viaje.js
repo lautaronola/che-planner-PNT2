@@ -125,12 +125,11 @@ function DetalleViajeScreen() {
     <SafeAreaView style={s.container}>
       {/* Header */}
       <View style={s.header}>
-        <View style={s.headerLeft}>
-          <Pressable style={s.backBtn} onPress={() => router.back()}>
-            <Text style={s.backIcon}>←</Text>
-          </Pressable>
-          <Text style={s.headerTitle}>Detalle del Viaje</Text>
-        </View>
+        <Pressable style={s.backBtn} onPress={() => router.back()}>
+          <Text style={s.backIcon}>←</Text>
+        </Pressable>
+        <Text style={s.headerTitle}>Detalle del Viaje</Text>
+        <View style={s.headerSpacer} />
       </View>
 
       {loading ? (
@@ -335,7 +334,8 @@ const s = StyleSheet.create({
   headerRight: { flexDirection: "row", alignItems: "center", gap: 8 },
   backBtn: { padding: 8, borderRadius: 999, backgroundColor: "#ebedf9" },
   backIcon: { fontSize: 18, color: "#126a5c" },
-  headerTitle: { fontSize: 20, fontWeight: "600", color: "#181c23" },
+  headerTitle: { flex: 1, textAlign: "center", fontSize: 20, fontWeight: "600", color: "#181c23" },
+  headerSpacer: { width: 30 },
   editarBtn: { fontSize: 14, fontWeight: "600", color: "#126a5c", paddingHorizontal: 12, paddingVertical: 6 },
   avatar: { width: 40, height: 40, borderRadius: 999, backgroundColor: "#7ecbba", alignItems: "center", justifyContent: "center", borderWidth: 2, borderColor: "#fff" },
   avatarText: { color: "#00564a", fontWeight: "700", fontSize: 16 },
