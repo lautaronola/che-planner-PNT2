@@ -14,7 +14,7 @@ import tripService from "../../services/tripService";
 import { useState, useEffect } from "react";
 
 function HomeScreen() {
-  const { auth, setAuth } = useAuth();
+  const { auth } = useAuth();
   const router = useRouter();
 
   const [trips, setTrips] = useState([]);
@@ -155,9 +155,11 @@ function HomeScreen() {
           <Text style={styles.navIcon}>✈️</Text>
           <Text style={styles.navLabel}>Nuevo viaje</Text>
         </Pressable>
-        <Pressable style={styles.navItem} onPress={() => setAuth(null)}>
-          <Text style={styles.navIcon}>👤</Text>
-          <Text style={styles.navLabel}>Salir</Text>
+        <Pressable style={styles.navItem} onPress={() => router.push("/profile")}>
+          <View style={styles.navAvatar}>
+            <Text style={styles.navAvatarText}>{(auth?.user?.name || "U").charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={styles.navLabel}>Perfil</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -319,6 +321,15 @@ const styles = StyleSheet.create({
   navIcon: { fontSize: 22 },
   navLabel: { fontSize: 12, fontWeight: "600", color: "#6f7976", marginTop: 2 },
   navLabelActive: { color: "#2e5183" },
+  navAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 999,
+    backgroundColor: "#7ecbba",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navAvatarText: { fontSize: 11, fontWeight: "700", color: "#00564a" },
 });
 
 export default HomeScreen;

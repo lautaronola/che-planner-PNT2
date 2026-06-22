@@ -214,6 +214,12 @@ function DeudasScreen() {
           <Text style={styles.navIcon}>🧾</Text>
           <Text style={[styles.navLabel, styles.navLabelActive]}>Gastos</Text>
         </Pressable>
+        <Pressable style={styles.navItem} onPress={() => router.push("/profile")}>
+          <View style={styles.navAvatar}>
+            <Text style={styles.navAvatarText}>{(auth?.user?.name || "U").charAt(0).toUpperCase()}</Text>
+          </View>
+          <Text style={styles.navLabel}>Perfil</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -390,16 +396,25 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
-  navItem: { alignItems: "center", paddingHorizontal: 20, paddingVertical: 4 },
+  navItem: { alignItems: "center", paddingHorizontal: 12, paddingVertical: 4 },
   navItemActive: {
     backgroundColor: "#a4c5ff",
     borderRadius: 999,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     paddingVertical: 4,
   },
   navIcon: { fontSize: 22 },
   navLabel: { fontSize: 12, fontWeight: "600", color: "#6f7976", marginTop: 2 },
   navLabelActive: { color: "#2e5183" },
+  navAvatar: {
+    width: 26,
+    height: 26,
+    borderRadius: 999,
+    backgroundColor: "#7ecbba",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  navAvatarText: { fontSize: 11, fontWeight: "700", color: "#00564a" },
 });
 
 export default DeudasScreen;

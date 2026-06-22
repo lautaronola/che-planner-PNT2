@@ -14,6 +14,7 @@ function RootNavigation() {
         <Stack.Screen name="deudas" />
         <Stack.Screen name="compartir" />
         <Stack.Screen name="escanearTicket" />
+        <Stack.Screen name="profile" />
       </Stack.Protected>
 
       <Stack.Protected guard={!isLoggedIn}>

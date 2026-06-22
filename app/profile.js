@@ -64,7 +64,14 @@ function ProfileScreen() {
   const handleLogout = () => {
     Alert.alert("Cerrar sesión", "¿Seguro que querés salir?", [
       { text: "Cancelar", style: "cancel" },
-      { text: "Salir", style: "destructive", onPress: () => setAuth(null) },
+      {
+        text: "Salir",
+        style: "destructive",
+        onPress: () => {
+          setAuth(null);
+          router.replace("/login");
+        },
+      },
     ]);
   };
 
