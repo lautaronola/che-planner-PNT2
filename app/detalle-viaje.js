@@ -131,10 +131,6 @@ function DetalleViajeScreen() {
           </Pressable>
           <Text style={s.headerTitle}>Detalle del Viaje</Text>
         </View>
-        <View style={s.headerRight}>
-          <Pressable><Text style={s.editarBtn}>Editar</Text></Pressable>
-          <View style={s.avatar}><Text style={s.avatarText}>{inicialUsuario}</Text></View>
-        </View>
       </View>
 
       {loading ? (

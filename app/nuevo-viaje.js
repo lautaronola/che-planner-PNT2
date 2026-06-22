@@ -87,7 +87,6 @@ function NuevoViajeScreen() {
     }
   };
 
-  const inicialUsuario = (auth?.user?.name || "U").charAt(0).toUpperCase();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -96,9 +95,6 @@ function NuevoViajeScreen() {
           <Text style={styles.backIcon}>←</Text>
         </Pressable>
         <Text style={styles.headerTitle}>Che-Planner</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{inicialUsuario}</Text>
-        </View>
       </View>
 
       <ScrollView

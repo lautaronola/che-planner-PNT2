@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "../../hooks/useAuth";
@@ -40,8 +41,6 @@ function HomeScreen() {
       activo = false;
     };
   }, [auth?.token]);
-
-  const inicialUsuario = (auth?.user?.name || "U").charAt(0).toUpperCase();
 
   const renderTrip = ({ item }) => (
     <Pressable
@@ -94,10 +93,11 @@ function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Che-Planner</Text>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>{inicialUsuario}</Text>
-        </View>
+        <Image
+          source={require("../../assets/che-planer-logo.png")}
+          style={styles.logo}
+          resizeMode="contain"
+        />
       </View>
 
       {loading ? (
@@ -168,22 +168,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     paddingHorizontal: 20,
     height: 56,
   },
-  headerTitle: { fontSize: 18, fontWeight: "600", color: "#126a5c" },
-  avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 999,
-    backgroundColor: "#7ecbba",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "#ffffff",
+  logo: {
+    width: 110,
+    height: 28,
   },
-  avatarText: { color: "#00564a", fontWeight: "700", fontSize: 14 },
 
   centro: {
     flex: 1,

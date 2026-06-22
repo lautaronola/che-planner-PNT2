@@ -110,9 +110,6 @@ function CompartirScreen() {
           </Pressable>
           <Text style={styles.headerTitle}>Compartir Viaje</Text>
         </View>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>S</Text>
-        </View>
       </View>
 
       <ScrollView
