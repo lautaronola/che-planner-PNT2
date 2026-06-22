@@ -10,7 +10,6 @@ import {
   TextInput,
   ActivityIndicator,
   Keyboard,
-  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -321,8 +320,7 @@ function DetalleViajeScreen() {
         animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={s.overlay}>
+        <View style={s.overlay}>
             <View style={s.modalCard}>
               <Text style={s.modalTitle}>Registrar Pago</Text>
               <Text style={s.modalLabel}>Email de a quien le pagas</Text>
@@ -365,7 +363,6 @@ function DetalleViajeScreen() {
               </View>
             </View>
           </View>
-        </TouchableWithoutFeedback>
       </Modal>
 
       <Modal
