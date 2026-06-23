@@ -302,6 +302,18 @@ function DetalleViajeScreen() {
           {viajeActivo && (
             <View style={s.finalizarSection}>
               <Pressable
+                style={s.compartirBtn}
+                onPress={() =>
+                  router.push(
+                    `/compartir?tripId=${tripId}&tripName=${encodeURIComponent(nombreViaje)}`,
+                  )
+                }
+              >
+                <Text style={s.finalizarIcon}>👥</Text>
+                <Text style={s.compartirText}>Invitar al viaje</Text>
+              </Pressable>
+
+              <Pressable
                 style={[s.finalizarBtn, cerrando && s.disabled]}
                 onPress={handleCerrarViaje}
                 disabled={cerrando}
@@ -705,6 +717,22 @@ const s = StyleSheet.create({
 
   // Finalizar
   finalizarSection: { paddingTop: 16, paddingBottom: 8 },
+  compartirBtn: {
+    backgroundColor: "#d4f0e8",
+    borderRadius: 12,
+    padding: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginBottom: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 20,
+    elevation: 2,
+  },
+  compartirText: { fontSize: 16, fontWeight: "600", color: "#126a5c" },
   finalizarBtn: {
     backgroundColor: "#ffdad6",
     borderRadius: 12,
