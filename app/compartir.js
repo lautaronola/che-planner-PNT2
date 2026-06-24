@@ -9,6 +9,9 @@ import {
   TextInput,
   Linking,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Share,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -21,7 +24,6 @@ function CompartirScreen() {
   const { tripId, tripName } = useLocalSearchParams();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(false);
   const [miembros, setMiembros] = useState([]);
 
@@ -106,9 +108,12 @@ function CompartirScreen() {
     }
   };
 
-  const handleCopyLink = () => {
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleCopyLink = async () => {
+    try {
+      await Share.share({ message: "cheplanner.com/trip/invite" });
+    } catch (e) {
+      Alert.alert("Error", "No se pudo compartir el link.");
+    }
   };
 
   return (
@@ -122,6 +127,11 @@ function CompartirScreen() {
         <View style={styles.headerSpacer} />
       </View>
 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -206,12 +216,11 @@ function CompartirScreen() {
             </Text>
           </View>
           <Pressable onPress={handleCopyLink}>
-            <Text style={styles.copyButton}>
-              {copied ? "¡Copiado!" : "Copiar"}
-            </Text>
+            <Text style={styles.copyButton}>Copiar</Text>
           </Pressable>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Bottom Nav */}
       <View style={styles.bottomNav}>

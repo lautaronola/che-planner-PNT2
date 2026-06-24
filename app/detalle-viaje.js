@@ -62,8 +62,9 @@ function DetalleViajeScreen() {
   const [cerrando, setCerrando] = useState(false);
   const [selectorVisible, setSelectorVisible] = useState(false);
   const [gastoManualVisible, setGastoManualVisible] = useState(false);
-  const [gastoMonto, setGastoMonto] = useState("");
   const [gastoDesc, setGastoDesc] = useState("");
+  const [gastoMonto, setGastoMonto] = useState("");
+  const [gastoSplit, setGastoSplit] = useState([]);
   const [guardandoGasto, setGuardandoGasto] = useState(false);
   const [cerrarModalVisible, setCerrarModalVisible] = useState(false);
   const [cerrarError, setCerrarError] = useState("");
@@ -112,25 +113,40 @@ function DetalleViajeScreen() {
     }
   };
 
+  const toggleSplit = (id) => {
+    setGastoSplit((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
   const handleAgregarGastoManual = async () => {
     Keyboard.dismiss();
+    if (!gastoDesc.trim()) {
+      Alert.alert("Error", "Ingresa una descripcion.");
+      return;
+    }
     if (!gastoMonto.trim() || isNaN(Number(gastoMonto)) || Number(gastoMonto) <= 0) {
       Alert.alert("Error", "Ingresa un monto valido mayor a 0.");
+      return;
+    }
+    if (gastoSplit.length === 0) {
+      Alert.alert("Error", "Selecciona entre quienes se divide.");
       return;
     }
     setGuardandoGasto(true);
     try {
       await tripService.addExpense(
         tripId,
-        gastoDesc.trim() || "Sin descripcion",
+        gastoDesc.trim(),
         Number(gastoMonto),
         auth?.user?._id || auth?.user?.id,
-        null,
+        gastoSplit,
         auth?.token,
       );
-      Alert.alert("Listo!", `Gasto de $${gastoMonto} agregado al viaje.`);
-      setGastoMonto("");
+      Alert.alert("Listo!", "Gasto agregado correctamente.");
       setGastoDesc("");
+      setGastoMonto("");
+      setGastoSplit([]);
       setGastoManualVisible(false);
       cargar();
     } catch (e) {
@@ -341,6 +357,9 @@ function DetalleViajeScreen() {
                 style={s.selectorOpcion}
                 onPress={() => {
                   setSelectorVisible(false);
+                  setGastoDesc("");
+                  setGastoMonto("");
+                  setGastoSplit(members.map((m) => m._id?.toString?.() || m._id || m.id));
                   setGastoManualVisible(true);
                 }}
               >
@@ -376,7 +395,16 @@ function DetalleViajeScreen() {
       >
         <View style={s.overlay}>
           <View style={s.modalCard}>
-            <Text style={s.modalTitle}>Gasto Manual</Text>
+            <Text style={s.modalTitle}>Agregar gasto</Text>
+
+            <Text style={s.modalLabel}>Descripción</Text>
+            <TextInput
+              style={s.input}
+              placeholder="Ej: Cena en la costanera"
+              value={gastoDesc}
+              onChangeText={setGastoDesc}
+            />
+
             <Text style={s.modalLabel}>Monto ($)</Text>
             <TextInput
               style={s.input}
@@ -384,24 +412,53 @@ function DetalleViajeScreen() {
               value={gastoMonto}
               onChangeText={setGastoMonto}
               keyboardType="decimal-pad"
-              autoFocus
             />
-            <Text style={s.modalLabel}>Descripción (opcional)</Text>
-            <TextInput
-              style={s.input}
-              placeholder="Ej: Cena, nafta, hotel..."
-              value={gastoDesc}
-              onChangeText={setGastoDesc}
-              returnKeyType="done"
-            />
+
+            <Text style={s.modalLabel}>¿Entre quiénes se divide?</Text>
+            {members.length === 0 ? (
+              <Text style={s.vacioText}>No hay integrantes.</Text>
+            ) : (
+              <ScrollView style={s.splitScroll} nestedScrollEnabled>
+                <View style={s.listaIntegrantes}>
+                  {members.map((m) => {
+                    const id = m._id?.toString?.() || m._id || m.id;
+                    const activo = gastoSplit.includes(id);
+                    return (
+                      <Pressable
+                        key={id}
+                        style={s.integranteRow}
+                        onPress={() => toggleSplit(id)}
+                      >
+                        <View style={s.integranteLeft}>
+                          <View style={s.integranteAvatar}>
+                            <Text style={s.integranteAvatarText}>
+                              {inicial(m.name || m.email)}
+                            </Text>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={s.integranteName}>
+                              {m.name || "Integrante"}
+                            </Text>
+                            <Text style={s.integranteEmail}>{m.email}</Text>
+                          </View>
+                        </View>
+                        <View style={[s.toggle, activo ? s.toggleActivo : s.toggleInactivo]}>
+                          <Text style={[s.toggleText, activo ? s.toggleTextActivo : s.toggleTextInactivo]}>
+                            {activo ? "✓" : "+"}
+                          </Text>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            )}
+
             <View style={s.modalBtns}>
               <Pressable
                 style={s.cancelBtn}
-                onPress={() => {
-                  setGastoManualVisible(false);
-                  setGastoMonto("");
-                  setGastoDesc("");
-                }}
+                onPress={() => setGastoManualVisible(false)}
+                disabled={guardandoGasto}
               >
                 <Text style={s.cancelText}>Cancelar</Text>
               </Pressable>
@@ -737,6 +794,8 @@ const s = StyleSheet.create({
   selectorOpcionTitle: { fontSize: 14, fontWeight: "700", color: "#181c23" },
   selectorOpcionSub: { fontSize: 11, color: "#6f7976", textAlign: "center" },
 
+  splitScroll: { maxHeight: 168, marginBottom: 4 },
+
   // Modal
   overlay: {
     flex: 1,
@@ -763,6 +822,36 @@ const s = StyleSheet.create({
     color: "#3f4946",
     marginBottom: 6,
   },
+  vacioText: { fontSize: 13, color: "#6f7976", marginBottom: 16 },
+  listaIntegrantes: { marginBottom: 16, gap: 8 },
+  integranteRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "#dfe2ed",
+    borderRadius: 8,
+  },
+  integranteLeft: { flexDirection: "row", alignItems: "center", gap: 12, flex: 1 },
+  integranteAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 999,
+    backgroundColor: "#7ecbba",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  integranteAvatarText: { fontWeight: "700", fontSize: 14, color: "#00564a" },
+  integranteName: { fontSize: 14, fontWeight: "600", color: "#181c23" },
+  integranteEmail: { fontSize: 12, color: "#6f7976" },
+  toggle: { width: 28, height: 28, borderRadius: 999, alignItems: "center", justifyContent: "center" },
+  toggleInactivo: { borderWidth: 2, borderColor: "rgba(18,106,92,0.2)" },
+  toggleActivo: { backgroundColor: "#126a5c" },
+  toggleText: { fontSize: 14, fontWeight: "700" },
+  toggleTextInactivo: { color: "#126a5c" },
+  toggleTextActivo: { color: "#ffffff" },
   input: {
     backgroundColor: "#f9f9ff",
     borderWidth: 1,
